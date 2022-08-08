@@ -1,18 +1,22 @@
 ---
-- name: Provision nginx
-  hosts: webservers
+- name: provision nginx
+  hosts: all
   become: yes
 
+  vars:
+    source_folder: ./
+    dest_folder: /var/www/html
+
   tasks:
-    - name: Ensure nginx package is present
+    - name: Ensure nginx is present
       apt:
         name: nginx
         state: present
-    - name: Replace
-      lineinfile:
-        path: /var/www/html/index.nginx-debian.html
-        regexp: '<p><script> document.write(new Date().toLocaleDateString()); </script></p>'
-    - name: Ensure tomcat service is started
-      service:
-        name: nginx
-        state: start
+
+    - name: templating index.html
+      template: src={{ source_folder }}/index.j2 dest={{dest_folder}}/index.html mode=0555
+      notify:
+        - restart nginx
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
