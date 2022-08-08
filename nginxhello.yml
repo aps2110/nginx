@@ -1,0 +1,11 @@
+---
+- name: Provision nginx
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Ensure nginx package is present
+      apt:
+        name: nginx
+        state: present
+    - name:
